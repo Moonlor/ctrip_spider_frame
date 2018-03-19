@@ -37,8 +37,8 @@ class NodeManager(object):
 
         while True:
 
-            if airline_manager.new_airlines_size() == 0 and airline_manager.hot_airline_started == False:
-                airline_manager.generate_airline_list(date.strftime("%Y-%m-%d"))
+            # if airline_manager.new_airlines_size() == 0 and airline_manager.hot_airline_started == False:
+            #     airline_manager.generate_airline_list(date.strftime("%Y-%m-%d"))
 
             while(airline_manager.has_new_airline()):
                 #从URL管理器获取新的url
