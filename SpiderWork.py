@@ -99,6 +99,7 @@ class SpiderWork(object):
 
             flight_day = i["fltoday"]
 
+            ontime_Rate = 0
             for j in i["mutilstn"][0]["comlist"]:
                 if j["type"] == 2:
                     ontime_Rate = j["stip"]
@@ -126,8 +127,9 @@ class SpiderWork(object):
                 if re.match(".*头等舱", k["classinfor"][0]["display"]):
                     price_3 = k["tprice"]
 
+            date = time.strftime("%Y_%m_%d", time.localtime())
             cur.execute(
-                '  INSERT INTO FlightInfo(airline,flight_id,model,dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,isstop,tran_city,tran_arrdate,tran_arrtime,tran_depdate,tran_deptime,flight_day,ontime_Rate,price_1,price_2,price_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                '  INSERT INTO Flight_%s' % date + '(airline,flight_id,model,dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,isstop,tran_city,tran_arrdate,tran_arrtime,tran_depdate,tran_deptime,flight_day,ontime_Rate,price_1,price_2,price_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 (airline, flight_id, model, dept_date, dept_time, dept_city, dept_airport, arv_date, arv_time, arv_city,
                  arv_airport, isstop, tran_city, tran_arrdate, tran_arrtime, tran_depdate, tran_deptime, flight_day,
                  ontime_Rate, price_1, price_2, price_3))
@@ -291,7 +293,7 @@ class SpiderWork(object):
                           u'\u56fa\u539f': u'GYU',
                           u'\u82b1\u571f\u6c9f': u'HTT', u'\u5305\u5934': u'BAV', u'\u6566\u714c': u'DNH',
                           u'\u5eb7\u5b9a': u'KGT', u'\u53f0\u4e2d': u'RMQ'}
-        cityList = [u'北京', u'上海']
+        cityList = [u'成都', u'杭州', u'武汉', u'西安', u'重庆', u'青岛', u'长沙', u'南京', u'厦门', u'昆明', u'大连', u'天津', u'郑州', u'三亚', u'济南', u'福州', u'北京', u'上海', u'广州', u'深圳']
         dateList = ['2018-04-01', '2018-04-02']
         crawlerList = CrawlerList()
         headers = RandomUserAgent()
