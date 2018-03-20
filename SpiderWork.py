@@ -167,7 +167,7 @@ class SpiderWork(object):
             # proData(r)
 
     def mainWork(self):
-        con = pymysql.connect(host='localhost', user='root', passwd='lde3cimi', db='Flight', port=3306,
+        con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
                               charset='utf8')
         cur = con.cursor()
         try:
