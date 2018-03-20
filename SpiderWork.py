@@ -135,47 +135,39 @@ class SpiderWork(object):
             con.commit()
 
     def crawler(self, dcity, acity, dtime, cid, con, cur, headers, proxies, crawlerList):
-        payload = json.dumps({"preprdid": "",
-                              "trptpe": 1,
-                              "flag": 8,
-                              "searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],
-                              "version": [{"Key": "170710_fld_dsmid", "Value": "Q"}],
-                              "head": {"cid": "%s" % cid, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888",
-                                       "syscode": "09", "auth": 'null',
-                                       "extension": [{"name": "protocal", "value": "https"}]},
-                              "contentType": "json"})
-        ip = 'pass'
-        while (True):
-            header = {'User-Agent': headers.head()}
-            ip = proxies.proxy()
-            print(ip)
-            proxy = {'http': ip}
-            test = requests.post("https://m.ctrip.com", headers=header, proxies=proxy)
-            if test.status_code == 200:
-                print('OK')
-                break
-            else:
-                print('NO')
-                print(ip)
-                proxies.invalid_IP.add(ip)
-
+        payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "Q"}],"head": {"cid": "%s" % cid, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
+        # ip = 'pass'
+        # while (True):
+        #     header = {'User-Agent': headers.head()}
+        #     ip = proxies.proxy()
+        #     print(ip)
+        #     proxy = {'http': ip}
+        #     test = requests.post("https://m.ctrip.com", headers=header, proxies=proxy)
+        #     if test.status_code == 200:
+        #         print('OK')
+        #         break
+        #     else:
+        #         print('NO')
+        #         print(ip)
+        #         proxies.invalid_IP.add(ip)
+        header = {'User-Agent': headers.head()}
+        # proxy = {'http': ip}
         time.sleep(2)
-        r = requests.post(
-            'https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid,
-            data=payload, headers=header, proxies=proxy)
-        r = eval(r.content.decode('utf-8'))
+        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header)  # , proxies=proxy
+        print(tmp.content.decode('utf-8'))
+        r = eval(tmp.content.decode('utf-8'))
 
         try:
-            proData(r)
+            self.proData(r, con, cur)
             print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
         except:
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
-            proxies.invalid_IP.add(ip)
+            # proxies.invalid_IP.add(ip)
             # proData(r)
 
     def mainWork(self):
-        con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
+        con = pymysql.connect(host='localhost', user='root', passwd='lde3cimi', db='Flight', port=3306,
                               charset='utf8')
         cur = con.cursor()
         try:
@@ -319,12 +311,12 @@ class SpiderWork(object):
                     dept_city_code = cityToCodeList[dept_city]
                     arv_city_code = cityToCodeList[arv_city]
                     for date in dateList:
-                        self.crawler(dept_city_code, arv_city_code, date, "09031062410370688676", con, cur, headers, proxies, crawlerList)
+                        self.crawler(dept_city_code, arv_city_code, date, "09031068311537560002", con, cur, headers, proxies, crawlerList)
 
         while (crawlerList.len() != 0):
             dept_city_code, arv_city_code, date = crawlerList.delete().split(' ')
             print('重新爬取' + ' ' + dept_city_code + ' ' + arv_city_code + ' ' + date)
-            self.crawler(dept_city_code, arv_city_code, date, "09031062410370688676", con, cur, headers, proxies, crawlerList)
+            self.crawler(dept_city_code, arv_city_code, date, "09031068311537560002", con, cur, headers, proxies, crawlerList)
 
 
 

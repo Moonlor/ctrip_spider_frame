@@ -8,7 +8,7 @@ __metaclass__ = type
 class RandomIP:
     proxies = []
     def __init__(self):
-        api_url = "http://dev.kuaidaili.com/api/getproxy/?orderid=962118612590645&num=999&b_pcchrome=1&b_pcie=1&b_pcff=1&b_android=1&b_iphone=1&b_ipad=1&protocol=2&method=2&an_an=1&an_ha=1&sep=3"
+        api_url = "http://dev.kuaidaili.com/api/getproxy/?orderid=962118612590645&num=500&b_android=1&b_iphone=1&b_ipad=1&protocol=2&method=2&an_an=1&an_ha=1&sp1=1&sep=3"
         r = requests.get(api_url)
         if r.status_code == 200:
             r.enconding = "utf-8"
