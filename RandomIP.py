@@ -19,10 +19,14 @@ class RandomIP:
             self.proxies.append(i)
 
         self.invalid_IP = set()
+        self.valid_IP = set()
 
     def proxy(self):
+
+        if len(self.valid_IP) != 0:
+            return self.valid_IP.pop()
+
         ip = random.choice(self.proxies)
-        print(ip)
         while(ip in self.invalid_IP):
             ip = random.choice(self.proxies)
         return ip

@@ -135,44 +135,36 @@ class SpiderWork(object):
             con.commit()
 
     def crawler(self, dcity, acity, dtime, cid, con, cur, headers, proxies, crawlerList):
+
         payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "Q"}],"head": {"cid": "%s" % cid, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
-        # ip = 'pass'
-        # while (True):
-        #     header = {'User-Agent': headers.head()}
-        #     ip = proxies.proxy()
-        #     print(ip)
-        #     proxy = {'http': ip}
-        #     test = requests.post("https://m.ctrip.com", headers=header, proxies=proxy)
-        #     if test.status_code == 200:
-        #         print('OK')
-        #         break
-        #     else:
-        #         print('NO')
-        #         print(ip)
-        #         proxies.invalid_IP.add(ip)
+        ip = proxies.proxy()
+
+        print("正在使用IP ：" + ip + "  |  " "正在使用cid : " + cid)
+
         header = {'User-Agent': headers.head()}
-        # proxy = {'http': ip}
+        proxy = {'http': ip}
         time.sleep(2)
-        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header)  # , proxies=proxy
+
+        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header, proxies=proxy)  # , proxies=proxy
         print(tmp.content.decode('utf-8'))
         r = eval(tmp.content.decode('utf-8'))
 
         try:
             self.proData(r, con, cur)
             print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+            proxies.valid_IP.add(ip)
         except:
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
-            # proxies.invalid_IP.add(ip)
-            # proData(r)
+            proxies.invalid_IP.add(ip)
 
     def mainWork(self):
-        con = pymysql.connect(host='localhost', user='root', passwd='lde3cimi', db='Flight', port=3306,
+        con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
                               charset='utf8')
         cur = con.cursor()
+        date = time.strftime("%Y_%m_%d", time.localtime())
         try:
-            cur.execute('''CREATE TABLE FlightInfo8
-                      (
+            cur.execute('''CREATE TABLE Flight_%s''' %date + ''' (
                       airline      varchar(255)     NOT NULL,
                       flight_id    varchar(255)     NOT NULL,
                       model        varchar(255)     NOT NULL,
