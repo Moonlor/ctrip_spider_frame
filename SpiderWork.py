@@ -162,10 +162,9 @@ class SpiderWork(object):
         con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
                               charset='utf8')
         cur = con.cursor()
-        date = time.strftime("%Y-%m-%d", time.localtime())
+        date = time.strftime("%Y_%m_%d", time.localtime())
         try:
-            cur.execute('''CREATE TABLE %s''' %date + '''
-                      (
+            cur.execute('''CREATE TABLE Flight_%s''' %date + ''' (
                       airline      varchar(255)     NOT NULL,
                       flight_id    varchar(255)     NOT NULL,
                       model        varchar(255)     NOT NULL,
