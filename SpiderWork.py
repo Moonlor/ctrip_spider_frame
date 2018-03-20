@@ -150,21 +150,24 @@ class SpiderWork(object):
         #         print('NO')
         #         print(ip)
         #         proxies.invalid_IP.add(ip)
+        ip = proxies.proxy()
+        print("正在使用IP ：" + ip + "  |  " "正在使用cid : " + cid)
         header = {'User-Agent': headers.head()}
-        # proxy = {'http': ip}
+        proxy = {'http': ip}
         time.sleep(2)
-        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header)  # , proxies=proxy
+        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header, proxies=proxy)  # , proxies=proxy
         print(tmp.content.decode('utf-8'))
         r = eval(tmp.content.decode('utf-8'))
 
         try:
             self.proData(r, con, cur)
             print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+            proxies.valid_IP.add(ip)
         except:
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
-            # proxies.invalid_IP.add(ip)
-            # proData(r)
+            proxies.invalid_IP.add(ip)
+            elf.proData(r, con, cur)
 
     def mainWork(self):
         con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
