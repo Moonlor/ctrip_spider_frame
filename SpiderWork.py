@@ -305,12 +305,12 @@ class SpiderWork(object):
                     dept_city_code = cityToCodeList[dept_city]
                     arv_city_code = cityToCodeList[arv_city]
                     for date in dateList:
-                        self.crawler(dept_city_code, arv_city_code, date, "09031068311537560002", con, cur, headers, proxies, crawlerList)
+                        self.crawler(dept_city_code, arv_city_code, date, "09031157411153518960", con, cur, headers, proxies, crawlerList)
 
         while (crawlerList.len() != 0):
             dept_city_code, arv_city_code, date = crawlerList.delete().split(' ')
             print('重新爬取' + ' ' + dept_city_code + ' ' + arv_city_code + ' ' + date)
-            self.crawler(dept_city_code, arv_city_code, date, "09031068311537560002", con, cur, headers, proxies, crawlerList)
+            self.crawler(dept_city_code, arv_city_code, date, "09031157411153518960", con, cur, headers, proxies, crawlerList)
 
 
 

@@ -4,7 +4,8 @@ from selenium import webdriver
 import time
 import importlib,sys
 import re
-# import MySQLdb
+import json
+import requests
 import pymysql
 
 importlib.reload(sys)
@@ -96,7 +97,7 @@ cityToCodeList = {u'\u5357\u5145': u'NAO', u'\u5b81\u6ce2': u'NGB', u'\u8fbe\u53
                   u'\u5eb7\u5b9a': u'KGT', u'\u53f0\u4e2d': u'RMQ'}
 
 cityList = [u'北京', u'广州']
-dateList = ['2018-03-20', '2018-03-21']
+dateList = ['2018-04-20', '2018-04-21']
 
 for dept_city in cityList:
     for arv_city in cityList:
@@ -115,109 +116,37 @@ for dept_city in cityList:
                 flight = driver.find_elements_by_css_selector("div[id^=flight_]")
                 name = []
 
-                cookies = driver.get_cookies()
+                remote_cookies = driver.get_cookies()
 
-                for each in cookies:
+
+                local_cookies = {}
+
+                for each in remote_cookies:
                     print(each)
+                    name = each['name']
+                    value = each['value']
+                    local_cookies[name] = value
 
-                for i in flight:
-                    name.append(i.get_attribute('id'))
-
-                # n = 0
-                nn = 0
-
-                for i in name:
-                    if i == 'flight_pagefooter':
-                        break
-                    a = driver.find_element_by_xpath(
-                        '//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[1]/div[1]/strong')
-                    airline = str(a.text)
-                    # print (a.text)
-                    # file.write(a.text + ',')
-
-                    b = driver.find_element_by_xpath(
-                        '//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[1]/div[1]/span')
-                    flight_id = str(b.text)
-                    # print (b.text)
-                    # file.write(b.text + ',')
-
-                    try:
-                        c = driver.find_element_by_xpath(
-                            '//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[1]/div[2]/span')
-                        model = str(c.text)
-                        # print (c.text)
-                        # file.write(c.text + ',')
-                    except:
-                        model = '梦想客机 波音787'
-                        # print ('梦想客机 波音787')
-                        # file.write('梦想客机 波音787' + ',')
-                        # n = n + 1
-
-                    d = driver.find_element_by_xpath('//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[2]/div')
-                    # print date,
-                    # file.write(date + ',')
-                    # print d.text,
-                    # file.write(d.text + ',')
-                    dept_time = str(d.text)
-
-                    # print dept_city,
-                    # file.write(dept_city + ',')
-
-                    e = driver.find_element_by_xpath('//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[2]/div[2]')
-                    dept_airport = str(e.text)
-                    # print e.text,
-                    # file.write(e.text + ',')
-
-                    f = driver.find_element_by_xpath('//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[4]/div')
-                    # print date,
-                    # file.write(date + ',')
-                    # print f.text,
-                    # file.write(f.text + ',')
-                    arv_time = str(f.text)
-
-                    # print arv_city,
-                    # file.write(arv_city + ',')
-
-                    g = driver.find_element_by_xpath('//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[4]/div[2]')
-                    arv_airport = str(g.text)
-                    # print g.text,
-                    # file.write(g.text + ',')
-
-                    dept_date = date
-                    arv_date = date
-                    flight_day = 0
-                    if int(dept_time[0:2]) > int(arv_time[0:2]):
-                        flight_day += 1
-                        year_s, mon_s, day_s = date.split('-')
-                        day_s = int(day_s) + 1
-                        if day_s <= 9:
-                            day_s = '0' + str(day_s)
-                        else:
-                            day_s = str(day_s)
-                        arv_date = str(year_s + '-' + mon_s + '-' + day_s)
-                    flight_day = float(flight_day)
-                    # print flight_day,
-                    # file.write(str(flight_day) + ',')
-
-                    h = driver.find_element_by_xpath('//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[5]/div')
-                    # str1 = h.text
-                    # str1 = str1.replace('\n', ' ')
-                    try:
-                        ontime_Rate = ''.join(list(filter(str.isdigit, str(h.text))))
-                        ontime_Rate = float(ontime_Rate)
-                    except:
-                        ontime_Rate = 0
-
-                    # print ontime_Rate,
-                    # file.write(ontime_Rate + ',')
-
-                    j = driver.find_element_by_xpath(
-                        '//div[@id=' + '\"' + i + '\"' + ']/table/tbody/tr/td[7]/span/span')
-                    price = float(''.join(list(filter(str.isdigit, str(j.text)))))
-                    # print price
-                    # file.write(price + '\n')
+                local_cookies['MKT_Pagesource'] = 'H5'
+                print(local_cookies)
 
 
-                time.sleep(5)
+                payload = json.dumps({"preprdid": "", "trptpe": 1, "flag": 8,
+                                      "searchitem": [{"dccode": "BSD", "accode": "SHA", "dtime": "2018-04-09"}],
+                                      "version": [{"Key": "170710_fld_dsmid", "Value": "Q"}],
+                                      "head": {"cid": "09031045311108507963", "ctok": "", "cver": "1.0", "lang": "01",
+                                               "sid": "8888", "syscode": "09", "auth": 'null',
+                                               "extension": [{"name": "protocal", "value": "https"}]},
+                                      "contentType": "json"})
+
+                r = requests.post(
+                    'https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + local_cookies['GUID'],
+                    data=payload, cookies = local_cookies)
+
+
+
+                print(r.content.decode('utf-8'))
+
+
                 driver.quit()
 
