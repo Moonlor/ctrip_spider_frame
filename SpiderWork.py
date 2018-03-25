@@ -59,13 +59,14 @@ class SpiderWork(object):
             arv_airport = i["mutilstn"][0]["aportinfo"]["aportsname"] + i["mutilstn"][0]["aportinfo"]["bsname"]
 
             isstop = i["mutilstn"][0]["isstop"]
+
             if isstop == 1:
                 tran_city = i["mutilstn"][0]["fsitem"][0]["city"]
-                tran_arrdate, tran_arrtime = i["mutilstn"][0]["fsitem"][0]["arrtime"].split(' ')
+                tran_arvdate, tran_arvtime = i["mutilstn"][0]["fsitem"][0]["arrtime"].split(' ')
                 tran_depdate, tran_deptime = i["mutilstn"][0]["fsitem"][0]["deptime"].split(' ')
             else:
                 tran_city = ""
-                tran_arrdate, tran_arrtime = "0001-01-01", ""
+                tran_arvdate, tran_arvtime = "0001-01-01", ""
                 tran_depdate, tran_deptime = "0001-01-01", ""
             try:
                 flight_id = i["mutilstn"][0]["basinfo"]["flgno"] + '|' + i["mutilstn"][1]["basinfo"]["flgno"]
@@ -75,11 +76,12 @@ class SpiderWork(object):
                 tran_city = arv_city
                 arv_city = i["mutilstn"][1]["dportinfo"]["cityname"]
                 arv_airport = i["mutilstn"][1]["aportinfo"]["aportsname"] + i["mutilstn"][1]["aportinfo"]["bsname"]
-                tran_depdate, tran_deptime = arv_date, arv_time
+                tran_arvdate, tran_arvtime = arv_date, arv_time
+                tran_depdate, tran_deptime = i["mutilstn"][1]["dateinfo"]["ddate"].split(' ')
                 arv_date, arv_time = i["mutilstn"][1]["dateinfo"]["adate"].split(' ')
                 isstop = 1
             except:
-                isstop = 0
+                pass
                 # print("非中转航班")
 
             flight_day = i["fltoday"]
@@ -114,9 +116,9 @@ class SpiderWork(object):
 
             date = time.strftime("%Y_%m_%d", time.localtime())
             cur.execute(
-                '  INSERT INTO Flight_%s' % date + '(airline,flight_id,model,dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,isstop,tran_city,tran_arrdate,tran_arrtime,tran_depdate,tran_deptime,flight_day,ontime_Rate,price_1,price_2,price_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                '  INSERT INTO Flight_%s' % date + '(airline,flight_id,model,dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,isstop,tran_city,tran_arvdate,tran_arvtime,tran_depdate,tran_deptime,flight_day,ontime_Rate,price_1,price_2,price_3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 (airline, flight_id, model, dept_date, dept_time, dept_city, dept_airport, arv_date, arv_time, arv_city,
-                 arv_airport, isstop, tran_city, tran_arrdate, tran_arrtime, tran_depdate, tran_deptime, flight_day,
+                 arv_airport, isstop, tran_city, tran_arvdate, tran_arvtime, tran_depdate, tran_deptime, flight_day,
                  ontime_Rate, price_1, price_2, price_3))
 
             con.commit()
@@ -202,8 +204,8 @@ class SpiderWork(object):
                       arv_airport  varchar(255)     NOT NULL,
                       isstop       float            NOT NULL,
                       tran_city    varchar(255)     NOT NULL,
-                      tran_arrdate date             NOT NULL,
-                      tran_arrtime varchar(255)     NOT NULL,
+                      tran_arvdate date             NOT NULL,
+                      tran_arvtime varchar(255)     NOT NULL,
                       tran_depdate date             NOT NULL,
                       tran_deptime varchar(255)     NOT NULL,
                       flight_day   float            NOT NULL,
