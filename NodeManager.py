@@ -46,7 +46,7 @@ class NodeManager(object):
                 #将新的航线发送给工作节点
                 airline_q.put(new_airline)
                 #加一个判断条件，当爬取2000个链接后就关闭,并保存进度
-                if(airline_manager.old_airlines_size()>5):
+                if(airline_manager.old_airlines_size() > 20):
                     #通知爬行节点工作结束
                     airline_q.put('end')
                     print('控制节点发起结束通知!')

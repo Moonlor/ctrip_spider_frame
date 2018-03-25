@@ -145,8 +145,8 @@ class SpiderWork(object):
         driver.get(url)
         print('Waiting...')
 
-        for i in range(5):
-            time.sleep(3)
+        for i in range(2):
+            time.sleep(0.3)
             driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
 
         remote_cookies = driver.get_cookies()
@@ -172,7 +172,6 @@ class SpiderWork(object):
 
     def mainWork(self, date, d_city, a_city, cookies, con, cur):
 
-        print(cookies)
         headers = RandomUserAgent()
         cid = cookies['GUID']
         # proxies = RandomIP()
@@ -235,6 +234,8 @@ class SpiderWork(object):
                         # 接着通知其它节点停止工作
                         self.result.put({'confirmed_airline': 'end', 'data': 'end'})
                         return
+
+                    print('get: <<<<<<<<' + airline + '>>>>>>>>>>>')
 
                     target = airline.split('|')
                     date_list = []
