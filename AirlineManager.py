@@ -21,13 +21,13 @@ class AirlineManager(object):
         return len(self.urgent_request)
 
     def has_new_airline(self):
-        if self.new_airlines_size() == 0 and self.hot_airline_started == True:
-            self.new_airlines.clear()
-            self.new_airlines = self.new_airlines.union(self.normal_airlines)
-            self.hot_airline_started = False
-            for i in self.new_airlines:
-                print(i)
-            a = self.new_airlines_size()
+        #当热门航线被爬取完成时，将剩余的航线加入热门航线集合
+
+        # if self.new_airlines_size() == 0 and self.hot_airline_started == True:
+        #     self.new_airlines.clear()
+        #     self.new_airlines = self.new_airlines.union(self.normal_airlines)
+        #     self.hot_airline_started = False
+
         return self.new_airlines_size() != 0
 
     def new_airlines_size(self):

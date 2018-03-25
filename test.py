@@ -106,6 +106,7 @@ for dept_city in cityList:
             arv_city_code = cityToCodeList[arv_city]
             for date in dateList:
                 url = 'https://m.ctrip.com/html5/flight/swift/domestic/' + dept_city_code + '/' + arv_city_code + '/' + date
+                # url = 'https://m.ctrip.com/html5/flight/swift/index'
                 driver = webdriver.PhantomJS()
                 driver.maximize_window()
                 driver.implicitly_wait(2)

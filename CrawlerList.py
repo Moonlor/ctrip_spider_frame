@@ -3,11 +3,13 @@ import random
 
 class CrawlerList:
     def __init__(self):
-        self.noCrawlerList = []
+        self._failed_airline = set()
+
     def add(self, x):
-        self.noCrawlerList.append(x)
+        self._failed_airline.add(x)
+
     def len(self):
-        return len(self.noCrawlerList)
+        return len(self._failed_airline)
+
     def delete(self):
-        random.shuffle(self.noCrawlerList)
-        return self.noCrawlerList.pop()
+        return self._failed_airline.pop()
