@@ -51,8 +51,8 @@ class NodeManager(object):
                     airline_q.put('end')
                     print('控制节点发起结束通知!')
                     #关闭管理节点，同时存储set状态
-                    # airline_manager.save_progress('./' + current_date + '|new_airlines.txt', airline_manager.new_airlines)
-                    # airline_manager.save_progress('./' + current_date + '|old_airlines.txt', airline_manager.old_airlines)
+                    airline_manager.save_progress('./' + current_date + '|new_airlines.txt', airline_manager.new_airlines)
+                    airline_manager.save_progress('./' + current_date + '|old_airlines.txt', airline_manager.old_airlines)
                     return
 
             #将从result_solve_proc获取到的urls添加到URL管理器之间

@@ -91,20 +91,6 @@ class SpiderWork(object):
                 if j["type"] == 2:
                     ontime_Rate = j["stip"]
 
-            # print(flight_id)
-            # print(airline)
-            # print(model)
-            # print(dept_date)
-            # print(dept_time)
-            # print(dept_city)
-            # print(dept_airport)
-            # print(arv_date)
-            # print(arv_time)
-            # print(arv_city)
-            # print(flight_day)
-            # print(arv_airport)
-            # print(ontime_Rate)
-
             price_1, price_2, price_3 = 99999, 99999, 99999
             for k in i["policyinfo"]:
                 if re.match("经济舱", k["classinfor"][0]["display"]):
@@ -140,12 +126,12 @@ class SpiderWork(object):
         r = eval(tmp.content.decode('utf-8'))
         print(r)
 
-        # try:
-        self.store_data(r, con, cur)
-        print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+        try:
+            self.store_data(r, con, cur)
+            print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             # proxies.valid_IP.add(ip)
-        # except:
-        #     print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+        except:
+            print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             # crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
             # proxies.invalid_IP.add(ip)
 
@@ -184,47 +170,11 @@ class SpiderWork(object):
 
         driver.quit()
 
-    def mainWork(self, date, d_city, a_city, cookies):
-        con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='Flight', port=3306,
-                              charset='utf8')
-        cur = con.cursor()
-        table_date = time.strftime("%Y_%m_%d", time.localtime())
-        try:
-            cur.execute('''CREATE TABLE Flight_%s''' %table_date + ''' (
-                      airline      varchar(255)     NOT NULL,
-                      flight_id    varchar(255)     NOT NULL,
-                      model        varchar(255)     NOT NULL,
-                      dept_date    date             NOT NULL,
-                      dept_time    varchar(255)     NOT NULL,
-                      dept_city    varchar(255)     NOT NULL,
-                      dept_airport varchar(255)     NOT NULL,
-                      arv_date     date             NOT NULL,
-                      arv_time     varchar(255)     NOT NULL,
-                      arv_city     varchar(255)     NOT NULL,
-                      arv_airport  varchar(255)     NOT NULL,
-                      isstop       float            NOT NULL,
-                      tran_city    varchar(255)     NOT NULL,
-                      tran_arvdate date             NOT NULL,
-                      tran_arvtime varchar(255)     NOT NULL,
-                      tran_depdate date             NOT NULL,
-                      tran_deptime varchar(255)     NOT NULL,
-                      flight_day   float            NOT NULL,
-                      ontime_Rate  float            NOT NULL,
-                      price_1      float            NOT NULL,
-                      price_2      float            NOT NULL,
-                      price_3      float            NOT NULL
-                      );''')
-        except:
-            print("已经存在数据库")
-
-        cid = cookies['GUID']
+    def mainWork(self, date, d_city, a_city, cookies, con, cur):
 
         print(cookies)
-
-
-
-
         headers = RandomUserAgent()
+        cid = cookies['GUID']
         # proxies = RandomIP()
 
         self.crawler(d_city, a_city, date, cid, con, cur, headers)
@@ -242,9 +192,43 @@ class SpiderWork(object):
 
         print("爬虫进程开始运行")
         while (True):
-            # try:
+            try:
                 if not self.task.empty():
                     airline = self.task.get()
+
+                    con = pymysql.connect(host='192.168.1.208', user='papa', passwd='woshinibaba', db='Flight',
+                                          port=3306,
+                                          charset='utf8')
+                    cur = con.cursor()
+
+                    table_date = time.strftime("%Y_%m_%d", time.localtime())
+                    try:
+                        cur.execute('''CREATE TABLE Flight_%s''' % table_date + ''' (
+                                          airline      varchar(255)     NOT NULL,
+                                          flight_id    varchar(255)     NOT NULL,
+                                          model        varchar(255)     NOT NULL,
+                                          dept_date    date             NOT NULL,
+                                          dept_time    varchar(255)     NOT NULL,
+                                          dept_city    varchar(255)     NOT NULL,
+                                          dept_airport varchar(255)     NOT NULL,
+                                          arv_date     date             NOT NULL,
+                                          arv_time     varchar(255)     NOT NULL,
+                                          arv_city     varchar(255)     NOT NULL,
+                                          arv_airport  varchar(255)     NOT NULL,
+                                          isstop       float            NOT NULL,
+                                          tran_city    varchar(255)     NOT NULL,
+                                          tran_arvdate date             NOT NULL,
+                                          tran_arvtime varchar(255)     NOT NULL,
+                                          tran_depdate date             NOT NULL,
+                                          tran_deptime varchar(255)     NOT NULL,
+                                          flight_day   float            NOT NULL,
+                                          ontime_Rate  float            NOT NULL,
+                                          price_1      float            NOT NULL,
+                                          price_2      float            NOT NULL,
+                                          price_3      float            NOT NULL
+                                          );''')
+                    except:
+                        print("已经存在数据库")
 
                     if airline == 'end':
                         print('控制节点通知爬虫节点停止工作...')
@@ -268,25 +252,24 @@ class SpiderWork(object):
 
                     for i in range(len(date_list)):
                         print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (date_list[i], d_city, a_city))
-                        self.mainWork(date_list[i], d_city, a_city, cookie)
+                        self.mainWork(date_list[i], d_city, a_city, cookie,con ,cur)
                         time.sleep(random.random() + 1)
 
                     pipe2.send('ok')
                     browser_proc.join()
                     print("浏览器已经关闭，线程同步")
 
-            # except (EOFError) as e:
-            #     print("连接工作节点失败")
-            #     return
-            # except (Exception) as e:
-            #     print(e)
-            #     print('Crawl  fali ')
+            except (EOFError) as e:
+                print("连接工作节点失败")
+                return
+            except (Exception) as e:
+                print(e)
+                print('Crawl  fali ')
 
 
 
 
 if __name__=="__main__":
     spider = SpiderWork()
-    # spider.crawl()
     print("连接成功")
-    # spider.mainWork()
+    spider.crawl()
