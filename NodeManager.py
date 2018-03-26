@@ -23,7 +23,7 @@ class NodeManager(object):
         BaseManager.register('get_task_queue',callable=lambda:airline_q)
         BaseManager.register('get_result_queue',callable=lambda:result_q)
         #绑定端口8001，设置验证口令，这个相当于对象的初始化
-        manager=BaseManager(address=('192.168.1.208',8011),authkey=b'woshinibaba')
+        manager=BaseManager(address=('127.0.0.1',8011),authkey=b'woshinibaba')
         #返回manager对象
         return manager
 
@@ -46,9 +46,10 @@ class NodeManager(object):
                 #将新的航线发送给工作节点
                 airline_q.put(new_airline)
                 #加一个判断条件，当爬取2000个链接后就关闭,并保存进度
-                if(airline_manager.old_airlines_size() > 20):
+                if(airline_manager.old_airlines_size() > 300):
                     #通知爬行节点工作结束
-                    airline_q.put('end')
+                    for i in range(30):
+                        airline_q.put('end')
                     print('控制节点发起结束通知!')
                     #关闭管理节点，同时存储set状态
                     airline_manager.save_progress('./' + current_date + '|new_airlines.txt', airline_manager.new_airlines)
@@ -123,6 +124,3 @@ if __name__=='__main__':
     result_solve_proc.start()
     store_proc.start()
     manager.get_server().serve_forever()
-
-
-

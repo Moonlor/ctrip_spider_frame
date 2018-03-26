@@ -26,7 +26,7 @@ class SpiderWork(object):
         BaseManager.register('get_task_queue')
         BaseManager.register('get_result_queue')
         # 实现第二步：连接到服务器:
-        server_addr = '192.168.1.208'
+        server_addr = '127.0.0.1'
         print('Connect to server %s...' % server_addr)
         # 端口和验证口令注意保持与服务进程设置的完全一致:
         self.m = BaseManager(address=(server_addr, 8011), authkey=b'woshinibaba')
@@ -60,14 +60,20 @@ class SpiderWork(object):
 
             isstop = i["mutilstn"][0]["isstop"]
 
-            if isstop == 1:
-                tran_city = i["mutilstn"][0]["fsitem"][0]["city"]
-                tran_arvdate, tran_arvtime = i["mutilstn"][0]["fsitem"][0]["arrtime"].split(' ')
-                tran_depdate, tran_deptime = i["mutilstn"][0]["fsitem"][0]["deptime"].split(' ')
-            else:
+            try:
+                if isstop == 1:
+                    tran_city = i["mutilstn"][0]["fsitem"][0]["city"]
+                    tran_arvdate, tran_arvtime = i["mutilstn"][0]["fsitem"][0]["arrtime"].split(' ')
+                    tran_depdate, tran_deptime = i["mutilstn"][0]["fsitem"][0]["deptime"].split(' ')
+                else:
+                    tran_city = ""
+                    tran_arvdate, tran_arvtime = "0001-01-01", ""
+                    tran_depdate, tran_deptime = "0001-01-01", ""
+            except:
                 tran_city = ""
                 tran_arvdate, tran_arvtime = "0001-01-01", ""
                 tran_depdate, tran_deptime = "0001-01-01", ""
+
             try:
                 flight_id = i["mutilstn"][0]["basinfo"]["flgno"] + '|' + i["mutilstn"][1]["basinfo"]["flgno"]
                 airline = i["mutilstn"][0]["basinfo"]["airsname"] + '|' + i["mutilstn"][1]["basinfo"]["airsname"]
@@ -87,9 +93,12 @@ class SpiderWork(object):
             flight_day = i["fltoday"]
 
             ontime_Rate = 0
-            for j in i["mutilstn"][0]["comlist"]:
-                if j["type"] == 2:
-                    ontime_Rate = j["stip"]
+            try:
+                for j in i["mutilstn"][0]["comlist"]:
+                    if j["type"] == 2:
+                        ontime_Rate = j["stip"]
+            except:
+                pass
 
             price_1, price_2, price_3 = 99999, 99999, 99999
             for k in i["policyinfo"]:
@@ -130,8 +139,10 @@ class SpiderWork(object):
             self.store_data(r, con, cur)
             print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             # proxies.valid_IP.add(ip)
-        except:
+        except (Exception) as e:
+            print(e)
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+            time.sleep(random.random() * 10)
             # crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
             # proxies.invalid_IP.add(ip)
 
@@ -195,7 +206,7 @@ class SpiderWork(object):
                 if not self.task.empty():
                     airline = self.task.get()
 
-                    con = pymysql.connect(host='192.168.1.208', user='papa', passwd='woshinibaba', db='Flight',
+                    con = pymysql.connect(host='127.0.0.1', user='papa', passwd='woshinibaba', db='Flight',
                                           port=3306,
                                           charset='utf8')
                     cur = con.cursor()
