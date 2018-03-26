@@ -11,8 +11,6 @@ import multiprocessing
 
 from selenium import webdriver
 from RandomUserAgent import RandomUserAgent
-from RandomIP import RandomIP
-from CrawlerList import CrawlerList
 
 global null, false, true
 null = ''
@@ -35,6 +33,7 @@ class SpiderWork(object):
         # 实现第三步：获取Queue的对象:
         self.task = self.m.get_task_queue()
         self.result = self.m.get_result_queue()
+        self.fail_flag = False
         print('init finish')
 
 
@@ -143,13 +142,14 @@ class SpiderWork(object):
             print(e)
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             time.sleep(random.random() * 10)
+            self.fail_flag = True
             # crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
             # proxies.invalid_IP.add(ip)
 
     def camouflage_broewser(self, pipe, date, d_city, a_city):
         url = 'https://m.ctrip.com/html5/flight/swift/domestic/' + d_city + '/' + a_city + '/' + date
         # url = 'https://m.ctrip.com/html5/flight/swift/index'
-        driver = webdriver.PhantomJS()
+        driver = webdriver.Chrome()
         driver.maximize_window()
         driver.implicitly_wait(2)
         print('Waiting...')
@@ -266,10 +266,16 @@ class SpiderWork(object):
                         print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (date_list[i], d_city, a_city))
                         self.mainWork(date_list[i], d_city, a_city, cookie,con ,cur)
                         time.sleep(random.random() + 1)
+                        if self.fail_flag == True:
+                            break
 
                     pipe2.send('ok')
                     browser_proc.join()
                     print("浏览器已经关闭，线程同步")
+                    if self.fail_flag == True:
+                        self.result.put(airline)
+                        self.fail_flag = False
+
 
             except (EOFError) as e:
                 print("连接工作节点失败")

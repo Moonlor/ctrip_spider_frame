@@ -115,7 +115,6 @@ class AirlineManager(object):
         # m = hashlib.md5()
         # m.update(new_airline)
         # self.old_airlines.add(m.hexdigest()[8:-8])
-        self.old_airlines.add(new_airline)
         return new_airline
 
     def add_new_airline(self, airline):

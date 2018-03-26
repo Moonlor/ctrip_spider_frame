@@ -22,7 +22,7 @@ class NodeManager(object):
         # 将Queue对象在网络中暴露
         BaseManager.register('get_task_queue',callable=lambda:airline_q)
         BaseManager.register('get_result_queue',callable=lambda:result_q)
-        #绑定端口8001，设置验证口令，这个相当于对象的初始化
+        #绑定端口8011，设置验证口令，这个相当于对象的初始化
         manager=BaseManager(address=('127.0.0.1',8011),authkey=b'woshinibaba')
         #返回manager对象
         return manager
@@ -46,7 +46,7 @@ class NodeManager(object):
                 #将新的航线发送给工作节点
                 airline_q.put(new_airline)
                 #加一个判断条件，当爬取2000个链接后就关闭,并保存进度
-                if(airline_manager.old_airlines_size() > 300):
+                if(airline_manager.old_airlines_size() > 4):
                     #通知爬行节点工作结束
                     for i in range(30):
                         airline_q.put('end')
@@ -59,9 +59,8 @@ class NodeManager(object):
             #将从result_solve_proc获取到的urls添加到URL管理器之间
             try:
                 if not conn_q.empty():
-                    pass
-                    # confirmed_airline = conn_q.get()
-                    # airline_manager.add_new_airlines(airlines)
+                    confirmed_airline = conn_q.get()
+                    airline_manager.add_new_airlines(confirmed_airline)
             except (BaseException) as e:
                 time.sleep(0.1)#延时休息
 
@@ -77,8 +76,11 @@ class NodeManager(object):
                         print('结果分析进程接受通知然后结束!')
                         store_q.put('end')
                         return
-                    conn_q.put(content['confirmed_airline'])#airline为set类型
-                    store_q.put(content['data'])#解析出来的数据为dict类型
+                    else:
+                        print('[!][!][!]航班：' + content['confirmed_airline'] + '  爬取失败!')
+                        conn_q.put(content['confirmed_airline'])  # airline为set类型
+
+                    # store_q.put(content['data'])#解析出来的数据为dict类型
                 else:
                     time.sleep(0.1)#延时休息
             except (BaseException) as e:
