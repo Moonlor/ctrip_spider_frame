@@ -1,4 +1,5 @@
 from multiprocessing.managers import BaseManager
+from selenium.webdriver.chrome.options import Options
 import requests
 import json
 import time
@@ -33,7 +34,7 @@ class SpiderWork(object):
         # 实现第三步：获取Queue的对象:
         self.task = self.m.get_task_queue()
         self.result = self.m.get_result_queue()
-        self.fail_flag = False
+        self.fail_flag = 0
         print('init finish')
 
 
@@ -142,14 +143,17 @@ class SpiderWork(object):
             print(e)
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
             time.sleep(random.random() * 10)
-            self.fail_flag = True
+            self.fail_flag = self.fail_flag + 1
             # crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
             # proxies.invalid_IP.add(ip)
 
     def camouflage_broewser(self, pipe, date, d_city, a_city):
         url = 'https://m.ctrip.com/html5/flight/swift/domestic/' + d_city + '/' + a_city + '/' + date
         # url = 'https://m.ctrip.com/html5/flight/swift/index'
-        driver = webdriver.Chrome()
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.maximize_window()
         driver.implicitly_wait(2)
         print('Waiting...')
@@ -206,7 +210,7 @@ class SpiderWork(object):
                 if not self.task.empty():
                     airline = self.task.get()
 
-                    con = pymysql.connect(host='127.0.0.1', user='papa', passwd='woshinibaba', db='Flight',
+                    con = pymysql.connect(host='111.231.143.45', user='papa', passwd='woshinibaba', db='flight',
                                           port=3306,
                                           charset='utf8')
                     cur = con.cursor()
@@ -243,7 +247,7 @@ class SpiderWork(object):
                     if airline == 'end':
                         print('控制节点通知爬虫节点停止工作...')
                         # 接着通知其它节点停止工作
-                        self.result.put({'confirmed_airline': 'end', 'data': 'end'})
+                        # self.result.put({'confirmed_airline': 'end', 'data': 'end'})
                         return
 
                     print('get: <<<<<<<<' + airline + '>>>>>>>>>>>')
@@ -265,16 +269,17 @@ class SpiderWork(object):
                     for i in range(len(date_list)):
                         print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (date_list[i], d_city, a_city))
                         self.mainWork(date_list[i], d_city, a_city, cookie,con ,cur)
-                        time.sleep(random.random() + 1)
-                        if self.fail_flag == True:
+                        # time.sleep(random.random() + 1)
+                        if self.fail_flag > 5:
                             break
 
                     pipe2.send('ok')
                     browser_proc.join()
                     print("浏览器已经关闭，线程同步")
-                    if self.fail_flag == True:
+                    if self.fail_flag > 5:
                         self.result.put(airline)
-                        self.fail_flag = False
+                        print("[!]通知控制节点重新爬取:  " + airline)
+                        self.fail_flag = 0
 
 
             except (EOFError) as e:
