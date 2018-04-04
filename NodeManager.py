@@ -55,7 +55,7 @@ class NodeManager(object):
 
                 while (airline_manager.has_new_airline()):
 
-                    if (airline_manager.old_airlines_size() > 30):
+                    if (airline_manager.old_airlines_size() > 300):
                         if flag:
                             time.sleep(10)
                             break

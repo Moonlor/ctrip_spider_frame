@@ -24,6 +24,7 @@ class SpiderWork(object):
         # 实现第一步：使用BaseManager注册获取Queue的方法名称
         BaseManager.register('get_task_queue')
         BaseManager.register('get_result_queue')
+        self.totoal_count = 0
         # 实现第二步：连接到服务器:
         server_addr = '127.0.0.1'
         print('Connect to server %s...' % server_addr)
@@ -88,7 +89,6 @@ class SpiderWork(object):
                 isstop = 1
             except:
                 pass
-                # print("非中转航班")
 
             flight_day = i["fltoday"]
 
@@ -118,51 +118,56 @@ class SpiderWork(object):
 
             con.commit()
 
-    def crawler(self, dcity, acity, dtime, cid, con, cur, headers):
+    def crawler(self, dcity, acity, dtime, cid, con, cur, headers, pipe2):
 
         payload = json.dumps({"preprdid": "","trptpe": 1,"flag": 8,"searchitem": [{"dccode": "%s" % dcity, "accode": "%s" % acity, "dtime": "%s" % dtime}],"version": [{"Key": "170710_fld_dsmid", "Value": "Q"}],"head": {"cid": "%s" % cid, "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888","syscode": "09", "auth": 'null',"extension": [{"name": "protocal", "value": "https"}]},"contentType": "json"})
-        # ip = proxies.proxy()
-
-        # print("正在使用IP ：" + ip + "  |  " "正在使用cid : " + cid)
         print("正在使用cid : " + cid)
 
         header = {'User-Agent': headers.head()}
-        # proxy = {'http': ip}
-        time.sleep(2)
-
-        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header) # proxies=proxy
-
+        tmp = requests.post('https://sec-m.ctrip.com/restapi/soa2/11781/Domestic/Swift/FlightList/Query?_fxpcqlniredt=' + cid, data=payload, headers=header)
         r = eval(tmp.content.decode('utf-8'))
         print(r)
+
+        if (self.totoal_count + 1 % 9) == 0:
+            pipe2.send('refresh')
 
         try:
             self.store_data(r, con, cur)
             print('成功爬取' + ' ' + dcity + ' ' + acity + ' ' + dtime)
+            self.totoal_count  += 1
+            print(self.totoal_count)
             # proxies.valid_IP.add(ip)
         except (Exception) as e:
             print(e)
             print('服务器繁忙' + ' ' + dcity + ' ' + acity + ' ' + dtime)
-            time.sleep(random.random() * 10)
+            pipe2.send('refresh')
+            time.sleep(random.random() * 10 + 60)
             self.fail_flag = self.fail_flag + 1
-            # crawlerList.add(dcity + ' ' + acity + ' ' + dtime)
-            # proxies.invalid_IP.add(ip)
 
     def camouflage_broewser(self, pipe, date, d_city, a_city):
-        url = 'https://m.ctrip.com/html5/flight/swift/domestic/' + d_city + '/' + a_city + '/' + date
-        # url = 'https://m.ctrip.com/html5/flight/swift/index'
+        search_date = (datetime.date.today() + datetime.timedelta(days= 60)).strftime("%Y-%m-%d")
+        url = 'https://m.ctrip.com/html5/flight/swift/domestic/' + d_city + '/' + a_city + '/' + search_date
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
         driver = webdriver.Chrome(chrome_options=chrome_options)
+        # driver = webdriver.Chrome()
         driver.maximize_window()
         driver.implicitly_wait(2)
         print('Waiting...')
         driver.get(url)
         print('Waiting...')
+        # driver.find_element_by_class_name('page-back-button').click()
+        try:
+            driver.find_elements_by_class_name('page-back-button')[-1].click()
+        except (Exception) as e:
+            print(e)
 
         for i in range(2):
-            time.sleep(0.3)
+            time.sleep(3)
             driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
+
+        driver.find_element_by_class_name('button-primary').click()
 
         remote_cookies = driver.get_cookies()
 
@@ -179,24 +184,26 @@ class SpiderWork(object):
 
         pipe.send(local_cookies)
 
-        if pipe.recv() == 'ok':
-            print("浏览器关闭，单条航线爬取完毕")
-            driver.quit()
+        while True:
+
+            msg = pipe.recv()
+
+            if msg == 'ok':
+                driver.quit()
+                print("浏览器关闭，单条航线爬取完毕")
+                return
+
+            if msg == 'refresh':
+                driver.find_element_by_class_name('day').click()
 
         driver.quit()
 
-    def mainWork(self, date, d_city, a_city, cookies, con, cur):
+    def mainWork(self, date, d_city, a_city, cookies, con, cur, pipe2):
 
         headers = RandomUserAgent()
         cid = cookies['GUID']
-        # proxies = RandomIP()
 
-        self.crawler(d_city, a_city, date, cid, con, cur, headers)
-
-        # while (crawlerList.len() != 0):
-        #     dept_city_code, arv_city_code, date = crawlerList.delete().split(' ')
-        #     print('重新爬取' + ' ' + dept_city_code + ' ' + arv_city_code + ' ' + date)
-        #     self.crawler(dept_city_code, arv_city_code, date, "09031157411153518960", con, cur, headers, proxies, crawlerList)
+        self.crawler(d_city, a_city, date, cid, con, cur, headers, pipe2)
 
     def crawl(self):
 
@@ -268,8 +275,8 @@ class SpiderWork(object):
 
                     for i in range(len(date_list)):
                         print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (date_list[i], d_city, a_city))
-                        self.mainWork(date_list[i], d_city, a_city, cookie,con ,cur)
-                        # time.sleep(random.random() + 1)
+                        self.mainWork(date_list[i], d_city, a_city, cookie,con ,cur, pipe2)
+                        time.sleep(random.random() + 4)
                         if self.fail_flag > 5:
                             break
 
