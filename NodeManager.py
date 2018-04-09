@@ -23,7 +23,7 @@ class NodeManager(object):
         BaseManager.register('get_task_queue',callable=lambda:airline_q)
         BaseManager.register('get_result_queue',callable=lambda:result_q)
         #绑定端口8011，设置验证口令，这个相当于对象的初始化
-        manager=BaseManager(address=('127.0.0.1',8011),authkey=b'woshinibaba')
+        manager=BaseManager(address=('111.231.143.45',8011),authkey=b'woshinibaba')
         #返回manager对象
         return manager
 
@@ -33,6 +33,25 @@ class NodeManager(object):
         o_day = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         c_day = time.strftime("%Y-%m-%d", time.localtime())
         while True:
+
+            try:
+                if not conn_q.empty():
+                    confirmed_airline = conn_q.get()
+                    print("[+]航线：" + confirmed_airline + "从已爬航线中移除，加入待爬航线")
+                    airline_manager.old_airlines.remove(confirmed_airline)
+                    content = airline_q.get()
+                    while content == 'end':
+                        content = airline_q.get()
+                    airline_q.put(content)
+                    airline_manager.add_new_airlines(confirmed_airline)
+                    airline_manager.save_progress('./' + c_day + '|new_airlines.txt',
+                                                  airline_manager.new_airlines)
+                    airline_manager.save_progress('./' + c_day + '|old_airlines.txt',
+                                                  airline_manager.old_airlines)
+            except (BaseException) as e:
+                time.sleep(0.1)  # 延时休息
+                print(e)
+
 
             if(c_day == o_day):
                 # time.sleep(1000)
@@ -44,22 +63,19 @@ class NodeManager(object):
             airline_manager = AirlineManager(c_day)
             airline_manager.generate_airline_list(c_day)
 
-            flag = False
 
             date = datetime.date.today() + datetime.timedelta(days=1)
+            out_flag = 0
 
             while True:
 
                 # if airline_manager.new_airlines_size() == 0 and airline_manager.hot_airline_started == False:
                 #     airline_manager.generate_airline_list(date.strftime("%Y-%m-%d"))
+                if out_flag > 1:
+                    break
 
                 while (airline_manager.has_new_airline()):
-
-                    if (airline_manager.old_airlines_size() > 300):
-                        if flag:
-                            time.sleep(10)
-                            break
-                            # return
+                    if (airline_manager.old_airlines_size() >= 379):
                         # 通知爬行节点工作结束
                         # for i in range(30):
                         #     airline_q.put('end')
@@ -69,7 +85,6 @@ class NodeManager(object):
                                                       airline_manager.new_airlines)
                         airline_manager.save_progress('./' + c_day + '|old_airlines.txt',
                                                       airline_manager.old_airlines)
-                        flag = True
 
                     # 从航线管理器获得新的航线
                     new_airline = airline_manager.get_new_airline()
@@ -78,23 +93,7 @@ class NodeManager(object):
                     airline_manager.old_airlines.add(new_airline)
 
                 # 将从result_solve_proc获取到的urls添加到URL管理器之间
-                try:
-                    if not conn_q.empty():
-                        confirmed_airline = conn_q.get()
-                        print("[+]航线：" + confirmed_airline + "从已爬航线中移除，加入待爬航线")
-                        airline_manager.old_airlines.remove(confirmed_airline)
-                        content = airline_q.get()
-                        while content == 'end':
-                            content = airline_q.get()
-                        airline_q.put(content)
-                        airline_manager.add_new_airlines(confirmed_airline)
-                        airline_manager.save_progress('./' + c_day + '|new_airlines.txt',
-                                                      airline_manager.new_airlines)
-                        airline_manager.save_progress('./' + c_day + '|old_airlines.txt',
-                                                      airline_manager.old_airlines)
-                except (BaseException) as e:
-                    time.sleep(0.1)  # 延时休息
-                    print(e)
+                out_flag += 1
 
 
 

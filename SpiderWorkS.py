@@ -26,7 +26,7 @@ class SpiderWork(object):
         BaseManager.register('get_result_queue')
         self.totoal_count = 0
         # 实现第二步：连接到服务器:
-        server_addr = '127.0.0.1'
+        server_addr = '111.231.143.45'
         print('Connect to server %s...' % server_addr)
         # 端口和验证口令注意保持与服务进程设置的完全一致:
         self.m = BaseManager(address=(server_addr, 8011), authkey=b'woshinibaba')
@@ -129,6 +129,7 @@ class SpiderWork(object):
                     '//li[@id=' + '\"' + str(i) + '\"' + ']/div[1]/div[1]/div[2]/div[1]/strong')
                 price = str(price.text)
             except(Exception) as e:
+                print('[!] 第%d' %(i) + '条航班出现错误: ')
                 break
 
             cur.execute(
@@ -158,8 +159,8 @@ class SpiderWork(object):
             "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"}
         chrome_options = Options()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-        # chrome_options.add_argument('--headless')
-        # chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
         driver = webdriver.Chrome(chrome_options = chrome_options)
 
         # driver = webdriver.Chrome()
@@ -189,7 +190,7 @@ class SpiderWork(object):
         while True:
             date_buttons = driver.find_elements_by_class_name('day')
 
-            if self.finished_airline > 5:
+            if self.finished_airline > 180:
                 self.finished_airline = 0
                 break
 
@@ -251,8 +252,6 @@ class SpiderWork(object):
         self.finished_airline = 0
         self.finished_date.clear()
 
-
-
     def crawl(self):
 
         print("爬虫进程开始运行")
@@ -261,7 +260,7 @@ class SpiderWork(object):
                 if not self.task.empty():
                     airline = self.task.get()
 
-                    con = pymysql.connect(host='localhost', user='root', passwd='woshinibaba', db='flight',
+                    con = pymysql.connect(host='111.231.143.45', user='root', passwd='woshinibaba', db='flight',
                                           port=3306,
                                           charset='utf8')
                     cur = con.cursor()
