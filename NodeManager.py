@@ -23,7 +23,7 @@ class NodeManager(object):
         BaseManager.register('get_task_queue',callable=lambda:airline_q)
         BaseManager.register('get_result_queue',callable=lambda:result_q)
         #绑定端口8011，设置验证口令，这个相当于对象的初始化
-        manager=BaseManager(address=('111.231.143.45',8011),authkey=b'woshinibaba')
+        manager=BaseManager(address=('127.0.0.1',8011),authkey=b'woshinibaba')
         #返回manager对象
         return manager
 

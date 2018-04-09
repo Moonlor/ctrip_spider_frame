@@ -260,7 +260,7 @@ class SpiderWork(object):
                 if not self.task.empty():
                     airline = self.task.get()
 
-                    con = pymysql.connect(host='111.231.143.45', user='root', passwd='woshinibaba', db='flight',
+                    con = pymysql.connect(host='111.231.143.45', user='papa', passwd='woshinibaba', db='flight',
                                           port=3306,
                                           charset='utf8')
                     cur = con.cursor()
