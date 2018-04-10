@@ -311,6 +311,8 @@ class SpiderWork(object):
                     #     print("[!]通知控制节点重新爬取:  " + airline)
                     #     self.fail_flag = 0
 
+            return
+
 
             except (EOFError) as e:
                 print("连接工作节点失败")
