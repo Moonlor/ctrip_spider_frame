@@ -314,6 +314,7 @@ class SpiderWork(object):
             return
 
 
+
             except (EOFError) as e:
                 print("连接工作节点失败")
                 return
