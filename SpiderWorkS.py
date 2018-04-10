@@ -323,6 +323,7 @@ class SpiderWork(object):
 
 
 if __name__=="__main__":
-    spider = SpiderWork()
-    print("连接成功")
-    spider.crawl()
+    while True:
+        spider = SpiderWork()
+        print("连接成功")
+        spider.crawl()
