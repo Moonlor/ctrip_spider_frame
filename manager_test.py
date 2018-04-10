@@ -66,11 +66,13 @@ class SpiderWork(object):
             except (Exception) as e:
                 print(e)
                 print('Crawl  fali ')
+                return
 
 
 
 
 if __name__=="__main__":
-    spider = SpiderWork()
-    print("连接成功")
-    spider.crawl()
+    while True:
+        spider = SpiderWork()
+        print("连接成功")
+        spider.crawl()
