@@ -7,6 +7,7 @@ import random
 import datetime
 import re
 import pymysql
+import os
 
 import multiprocessing
 
@@ -328,8 +329,9 @@ class SpiderWork(object):
 
 
 if __name__=="__main__":
-    while True:
-        spider = SpiderWork()
-        print("连接成功")
-        spider.crawl()
-        spider.driver.quit()
+    spider = SpiderWork()
+    print("连接成功")
+    spider.crawl()
+    spider.driver.quit()
+    python = os.sys.executable
+    os.execl(python, 'python3.5', *os.sys.argv)
