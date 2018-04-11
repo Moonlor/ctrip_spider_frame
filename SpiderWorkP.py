@@ -42,7 +42,7 @@ class SpiderWork(object):
 
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         dcap['phantomjs.page.settings.userAgent'] = (
-        'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36')
+        'Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19')
         self.driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=['--ignore-ssl-errors=true'])
         self.driver.set_window_size(360, 640)
         print('init finish')
