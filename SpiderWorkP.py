@@ -38,15 +38,6 @@ class SpiderWork(object):
         self.fail_flag = 0
         self.finished_airline = 0
         self.finished_date = set()
-        mobile_emulation = {
-            "deviceMetrics": {"width": 360, "height": 640, "pixelRatio": 3.0},
-            "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"}
-        chrome_options = Options()
-        chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument("--no-sandbox")
-        self.driver = webdriver.Chrome(chrome_options=chrome_options)
         print('init finish')
 
     def nextday(self, date):
@@ -163,42 +154,53 @@ class SpiderWork(object):
         # chrome_options.add_argument('--disable-gpu')
         # driver = webdriver.Chrome(chrome_options=chrome_options)
 
-        self.driver.implicitly_wait(2)
+        mobile_emulation = {
+            "deviceMetrics": {"width": 360, "height": 640, "pixelRatio": 3.0},
+            "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"}
+        chrome_options = Options()
+        chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+        # chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--disable-gpu')
+        # chrome_options.add_argument("--no-sandbox")
+
+        driver = webdriver.Chrome(chrome_options = chrome_options)
+
+        driver.implicitly_wait(2)
         print('Waiting...')
-        self.driver.get(url)
+        driver.get(url)
         print('Waiting...')
 
         try:
-            self.driver.find_elements_by_class_name('page-back-button')[-1].click()
+            driver.find_elements_by_class_name('page-back-button')[-1].click()
         except (Exception) as e:
             print(e)
-            self.driver.implicitly_wait(2)
-            self.driver.find_elements_by_class_name('page-back-button')[-1].click()
+            driver.implicitly_wait(2)
+            driver.find_elements_by_class_name('page-back-button')[-1].click()
 
         for i in range(2):
             time.sleep(3)
-            self.driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
+            driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
 
-        self.driver.find_element_by_class_name('button-primary').click()
+        driver.find_element_by_class_name('button-primary').click()
 
         time.sleep(3)
 
         no_more_button_flag = False
 
         while True:
-            date_buttons = self.driver.find_elements_by_class_name('day')
+            date_buttons = driver.find_elements_by_class_name('day')
 
             if self.finished_airline > 180:
                 self.finished_airline = 0
                 break
 
             if no_more_button_flag:
-                self.driver.find_element_by_class_name('more').click()
+                driver.find_element_by_class_name('more').click()
 
-                day_buttons = self.driver.find_elements_by_class_name('calendar-day-item')
+                day_buttons = driver.find_elements_by_class_name('calendar-day-item')
                 contrast_text = ' '
 
-                for each in self.driver.find_elements_by_class_name('calendar-day-current'):
+                for each in driver.find_elements_by_class_name('calendar-day-current'):
                     contrast_text = each.text
                     break
 
@@ -221,7 +223,7 @@ class SpiderWork(object):
                     continue
 
                 print('--------' + self.filter_ctrip_date(each.text) + '--------')
-                self.store_data(self.driver, con, cur, search_date, d_city, a_city)
+                self.store_data(driver, con, cur, search_date, d_city, a_city)
                 search_date = self.nextday(search_date)
                 self.finished_date.add(self.filter_ctrip_date(each.text))
                 each.click()
@@ -245,7 +247,7 @@ class SpiderWork(object):
         #     self.fail_flag = self.fail_flag + 1
 
 
-        self.driver.quit()
+        driver.quit()
         self.fail_flag = 0
         self.finished_airline = 0
         self.finished_date.clear()
@@ -290,7 +292,7 @@ class SpiderWork(object):
                         print('控制节点通知爬虫节点停止工作...')
                         # 接着通知其它节点停止工作
                         # self.result.put({'confirmed_airline': 'end', 'data': 'end'})
-                        self.driver.quit()
+                        driver.quit()
                         return
 
                     print('get: <<<<<<<<' + airline + '>>>>>>>>>>>')
@@ -315,13 +317,13 @@ class SpiderWork(object):
 
             except (EOFError) as e:
                 print("连接工作节点失败")
-                self.driver.quit()
+                driver.quit()
                 return
             except (Exception) as e:
                 print(e)
                 print('Crawl  fali ')
 
-            self.driver.quit()
+            driver.quit()
             return
 
 
@@ -332,4 +334,4 @@ if __name__=="__main__":
         spider = SpiderWork()
         print("连接成功")
         spider.crawl()
-        spider.driver.quit()
+        driver.quit()
