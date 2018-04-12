@@ -86,6 +86,8 @@ class NodeManager(object):
             if(c_day == o_day):
                 time.sleep(1)
                 c_day = time.strftime("%Y-%m-%d", time.localtime())
+                # print("-----------还未爬取的航班------------")
+                # print(airline_q.qsize())
                 continue
             o_day = c_day
             print("开始新一天的爬取")
