@@ -27,6 +27,35 @@ class NodeManager(object):
         #返回manager对象
         return manager
 
+    def create_table(self):
+        con = pymysql.connect(host='111.231.143.45', user='papa', passwd='woshinibaba', db='flight',
+                              port=3306,
+                              charset='utf8')
+        cur = con.cursor()
+
+        table_date = time.strftime("%Y_%m_%d", time.localtime())
+        try:
+            cur.execute('''CREATE TABLE Flight_%s''' % table_date + '''
+                                (
+
+                                    update_time  date             NOT NULL,
+                                    airline      varchar(255)     NOT NULL,
+                                    flight_id    varchar(255)     NOT NULL,
+                                    dept_date    date             NOT NULL,
+                                     dept_time    varchar(255)     NOT NULL,
+                                    dept_city    varchar(255)     NOT NULL,
+                                    dept_airport varchar(255)     NOT NULL,
+                                    arv_date     date             NOT NULL,
+                                    arv_time     varchar(255)     NOT NULL,
+                                    arv_city     varchar(255)     NOT NULL,
+                                    arv_airport  varchar(255)     NOT NULL,
+                                    flight_day   float            NOT NULL,
+                                    ontime_Rate  float            NOT NULL,
+                                    price        float            NOT NULL
+                                );''')
+        except:
+            print("已经存在数据库")
+
 
 
     def airline_manager_proc(self, airline_q, conn_q):
@@ -54,7 +83,7 @@ class NodeManager(object):
 
 
             if(c_day == o_day):
-                # time.sleep(1000)
+                time.sleep(1)
                 c_day = time.strftime("%Y-%m-%d", time.localtime())
                 continue
             o_day = c_day
