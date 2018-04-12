@@ -329,9 +329,15 @@ class SpiderWork(object):
 
 
 if __name__=="__main__":
-    spider = SpiderWork()
-    print("连接成功")
-    spider.crawl()
-    spider.driver.quit()
-    python = os.sys.executable
-    os.execl(python, 'python3.5', *os.sys.argv)
+    try:
+        spider = SpiderWork()
+        print("连接成功")
+        spider.crawl()
+        spider.driver.quit()
+        python = os.sys.executable
+        os.execl(python, 'python3.5', *os.sys.argv)
+    except (Exception) as e:
+        print(e)
+        python = os.sys.executable
+        os.execl(python, 'python3.5', *os.sys.argv)
+        print("重新启动爬虫")
