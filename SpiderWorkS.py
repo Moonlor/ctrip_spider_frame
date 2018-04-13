@@ -81,8 +81,12 @@ class SpiderWork(object):
         self.execute(driver, 1, 1)
 
         i = 0
+        item_count_str = str(driver.find_element_by_xpath('//*[@id="domestict-list"]/div[2]/div[1]/div[1]/div/span[3]').text)
+        item_count = int(re.findall('[0-9]+', item_count_str)[0])
         while (True):
             i += 1
+            if i > item_count:
+                break
 
             try:
                 # ---------------------------------------------------------------------------------------
