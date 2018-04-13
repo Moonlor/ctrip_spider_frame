@@ -7,6 +7,7 @@ import datetime
 
 from AirlineManager import *
 from DataOutput import *
+import pymysql
 
 #airline_q  将要爬取的航班队列
 #result_q   爬虫返回的结果
@@ -88,6 +89,7 @@ class NodeManager(object):
                 continue
             o_day = c_day
             print("开始新一天的爬取")
+            self.create_table()
 
             airline_manager = AirlineManager(c_day)
             airline_manager.generate_airline_list(c_day)
