@@ -89,6 +89,8 @@ class NodeManager(object):
                 # print("-----------还未爬取的航班------------")
                 # print(airline_q.qsize())
                 continue
+            # if airline_q.qsize() != 0:
+            #     continue
             o_day = c_day
             print("开始新一天的爬取")
             self.create_table()

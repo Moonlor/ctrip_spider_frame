@@ -77,7 +77,7 @@ class SpiderWork(object):
         return airline, flightID
 
 
-    def store_data(self, driver, con, cur, date, dept_city, arv_city):
+    def store_data(self, driver, con, cur, date, dept_city, arv_city, query_date):
         self.execute(driver, 1, 1)
 
         i = 0
@@ -147,7 +147,7 @@ class SpiderWork(object):
                 break
 
             cur.execute(
-                '  INSERT INTO Flight_%s' % datetime.date.today().strftime("%Y_%m_%d") + '(update_time, airline,flight_id, dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,flight_day,ontime_Rate,price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                '  INSERT INTO Flight_%s' % query_date.replace('-', '_') + '(update_time, airline,flight_id, dept_date,dept_time,dept_city,dept_airport,arv_date,arv_time,arv_city,arv_airport,flight_day,ontime_Rate,price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
                 (update_time, airline, flight_id, dept_date, dept_time, dept_city, dept_airport, arv_date, arv_time,
                  arv_city,
                  arv_airport, flight_day, ontime_Rate, price))
@@ -157,7 +157,7 @@ class SpiderWork(object):
 
 
 
-    def camouflage_broewser(self, today, d_city, a_city, con, cur):
+    def camouflage_broewser(self, today, query_day, d_city, a_city, con, cur):
 
         print('爬虫节点正在解析: 旅行日期 %s | 出发城市 %s | 到达城市 %s' % (today, d_city, a_city))
 
@@ -226,7 +226,7 @@ class SpiderWork(object):
                     continue
 
                 print('--------' + self.filter_ctrip_date(each.text) + '--------')
-                self.store_data(self.driver, con, cur, search_date, d_city, a_city)
+                self.store_data(self.driver, con, cur, search_date, d_city, a_city, query_day)
                 search_date = self.nextday(search_date)
                 self.finished_date.add(self.filter_ctrip_date(each.text))
                 each.click()
@@ -304,10 +304,11 @@ class SpiderWork(object):
 
                     today = datetime.date.today().strftime("%Y-%m-%d")
 
+                    query_date = target[0]
                     d_city = target[1]
                     a_city = target[2]
 
-                    self.camouflage_broewser(today, d_city, a_city, con, cur)
+                    self.camouflage_broewser(today, query_date, d_city, a_city, con, cur)
 
                     # if self.fail_flag > 5:
                     #     self.result.put(airline)
