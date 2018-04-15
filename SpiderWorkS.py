@@ -207,13 +207,15 @@ class SpiderWork(object):
                     contrast_text = each.text
                     break
 
-                currect_btn = False
+                currect_btn = 0
                 for each in day_buttons:
-                    if currect_btn:
+                    if currect_btn >=1:
+                        currect_btn += 1
+                    if currect_btn > 2:
                         each.click()
                         break
                     if each.text == contrast_text:
-                        currect_btn = True
+                        currect_btn = 1
 
                 no_more_button_flag = False
                 time.sleep(2)
