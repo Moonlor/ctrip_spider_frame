@@ -62,6 +62,7 @@ class NodeManager(object):
     def airline_manager_proc(self, airline_q, conn_q):
         o_day = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         c_day = time.strftime("%Y-%m-%d", time.localtime())
+        status_clock = 0
         while True:
 
             try:
@@ -84,13 +85,17 @@ class NodeManager(object):
 
 
             if(c_day == o_day):
-                time.sleep(1)
+                time.sleep(0.1)
                 c_day = time.strftime("%Y-%m-%d", time.localtime())
-                # print("-----------还未爬取的航班------------")
-                # print(airline_q.qsize())
+                status_clock += 1
+                if status_clock > 600:
+                    print("-----------还未爬取的航班------------")
+                    print(airline_q.qsize())
+                    status_clock = 0
+
                 continue
-            # if airline_q.qsize() != 0:
-            #     continue
+            if airline_q.qsize() != 0:
+                continue
             o_day = c_day
             print("开始新一天的爬取")
             self.create_table()
