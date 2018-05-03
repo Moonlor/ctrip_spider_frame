@@ -279,7 +279,7 @@ class SpiderWork(object):
                             airline      varchar(255)     NOT NULL,
                             flight_id    varchar(255)     NOT NULL,
                             dept_date    date             NOT NULL,
-                             dept_time    varchar(255)     NOT NULL,
+                             dept_time    varchar(255)    NOT NULL,
                             dept_city    varchar(255)     NOT NULL,
                             dept_airport varchar(255)     NOT NULL,
                             arv_date     date             NOT NULL,
