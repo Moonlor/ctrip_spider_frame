@@ -12,7 +12,6 @@ import os
 import multiprocessing
 
 from selenium import webdriver
-from RandomUserAgent import RandomUserAgent
 
 global null, false, true
 null = ''
@@ -44,9 +43,9 @@ class SpiderWork(object):
             "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"}
         chrome_options = Options()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--disable-gpu')
+        # chrome_options.add_argument("--no-sandbox")
         self.driver = webdriver.Chrome(chrome_options=chrome_options)
         print('init finish')
 
@@ -81,12 +80,12 @@ class SpiderWork(object):
         self.execute(driver, 1, 1)
 
         i = 0
-        item_count_str = str(driver.find_element_by_xpath('//*[@id="domestict-list"]/div[2]/div[1]/div[1]/div/span[3]').text)
-        item_count = int(re.findall('[0-9]+', item_count_str)[0])
+        # item_count_str = str(driver.find_element_by_xpath('//*[@id="domestict-list"]/div[2]/div[1]/div[1]/div/span[1]').text)
+        # item_count = int(re.findall('[0-9]+', item_count_str)[0])
         while (True):
             i += 1
-            if i > item_count:
-                break
+            # if i > item_count:
+            #     break
 
             try:
                 # ---------------------------------------------------------------------------------------
